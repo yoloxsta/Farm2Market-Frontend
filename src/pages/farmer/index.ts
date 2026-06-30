@@ -1,0 +1,6 @@
+export { default as FarmerDashboard } from './DashboardPage'
+export { default as FarmerProducts } from './ProductsPage'
+export { default as FarmerOrders } from './OrdersPage'
+export { default as FarmerFarm } from './FarmPage'
+export { default as FarmerEarnings } from './EarningsPage'
+export { default as FarmerAnalytics } from './AnalyticsPage'

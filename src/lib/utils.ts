@@ -6,18 +6,27 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-MM', {
     style: 'currency',
-    currency: 'USD',
-  }).format(amount)
+    currency: 'MMK',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount).replace('MMK', 'K')
 }
 
-export function formatDate(date: Date | string): string {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(date))
+export function formatDate(date: Date | string | null | undefined): string {
+  if (!date) return 'N/A'
+  try {
+    const d = new Date(date)
+    if (isNaN(d.getTime())) return 'N/A'
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(d)
+  } catch {
+    return 'N/A'
+  }
 }
 
 export function formatDateTime(date: Date | string): string {

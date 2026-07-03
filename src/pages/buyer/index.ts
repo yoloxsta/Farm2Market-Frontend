@@ -1,2 +1,7 @@
 export { default as BuyerDashboard } from './DashboardPage'
 export { default as BuyerShop } from './ShopPage'
+export { default as BuyerProductDetail } from './ProductDetailPage'
+export { default as BuyerCart } from './CartPage'
+export { default as BuyerCheckout } from './CheckoutPage'
+export { default as BuyerOrders } from './OrdersPage'
+export { default as BuyerDeliveries } from './DeliveriesPage'

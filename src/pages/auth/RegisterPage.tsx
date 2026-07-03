@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Leaf, ShoppingBag, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -60,7 +60,7 @@ export default function RegisterPage() {
         title: 'Account created!',
         description: 'Please login with your credentials.',
       })
-      navigate('/login')
+      navigate(`/login?role=${data.role}`)
     } else {
       toast({
         variant: 'destructive',
@@ -80,15 +80,16 @@ export default function RegisterPage() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Role Selection */}
         <div className="space-y-2">
-          <Label>I am a</Label>
+          <Label>I want to</Label>
           <div className="grid grid-cols-2 gap-4">
             <label
               htmlFor="role-farmer"
-              className={`flex items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
                 selectedRole === 'farmer'
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted hover:border-primary/50'
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-muted hover:border-primary/50 hover:bg-muted/50'
               }`}
             >
               <input
@@ -98,14 +99,16 @@ export default function RegisterPage() {
                 className="sr-only"
                 {...register('role')}
               />
-              <span className="font-medium">Farmer</span>
+              <Leaf className={`h-8 w-8 mb-2 ${selectedRole === 'farmer' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="font-semibold">Farmer</span>
+              <span className="text-xs text-muted-foreground mt-1">Sell your products</span>
             </label>
             <label
               htmlFor="role-buyer"
-              className={`flex items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-colors ${
+              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
                 selectedRole === 'buyer'
-                  ? 'border-primary bg-primary/5'
-                  : 'border-muted hover:border-primary/50'
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-muted hover:border-primary/50 hover:bg-muted/50'
               }`}
             >
               <input
@@ -115,7 +118,9 @@ export default function RegisterPage() {
                 className="sr-only"
                 {...register('role')}
               />
-              <span className="font-medium">Buyer</span>
+              <ShoppingBag className={`h-8 w-8 mb-2 ${selectedRole === 'buyer' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="font-semibold">Buyer</span>
+              <span className="text-xs text-muted-foreground mt-1">Buy fresh products</span>
             </label>
           </div>
         </div>
@@ -135,7 +140,7 @@ export default function RegisterPage() {
 
         {selectedRole === 'farmer' && (
           <div className="space-y-2">
-            <Label htmlFor="farmName">Farm Name</Label>
+            <Label htmlFor="farmName">Farm Name (Optional)</Label>
             <Input
               id="farmName"
               placeholder="Green Valley Farm"
@@ -147,7 +152,7 @@ export default function RegisterPage() {
 
         {selectedRole === 'buyer' && (
           <div className="space-y-2">
-            <Label htmlFor="companyName">Company Name</Label>
+            <Label htmlFor="companyName">Company Name (Optional)</Label>
             <Input
               id="companyName"
               placeholder="Fresh Market Co."
@@ -236,17 +241,34 @@ export default function RegisterPage() {
               Creating account...
             </>
           ) : (
-            'Create account'
+            `Register as ${selectedRole === 'farmer' ? 'Farmer' : 'Buyer'}`
           )}
         </Button>
       </form>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Already have an account?{' '}
-        <Link to="/login" className="text-primary hover:underline">
-          Sign in
-        </Link>
-      </p>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Already have an account?</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <Button variant="outline" asChild>
+          <Link to="/login?role=farmer">
+            <Leaf className="mr-2 h-4 w-4 text-green-600" />
+            Sign in as Farmer
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/login?role=buyer">
+            <ShoppingBag className="mr-2 h-4 w-4 text-blue-600" />
+            Sign in as Buyer
+          </Link>
+        </Button>
+      </div>
 
       <p className="text-center text-xs text-muted-foreground">
         By creating an account, you agree to our{' '}

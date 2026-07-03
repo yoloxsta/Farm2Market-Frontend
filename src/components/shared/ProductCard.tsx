@@ -26,12 +26,19 @@ export default function ProductCard({
     discontinued: 'bg-gray-100 text-gray-800',
   }
 
+  // Handle both camelCase and snake_case from API
+  const farmerName = (product as any).farmer_name || product.farmerName || 'Unknown Farmer'
+  const farmerRating = (product as any).farmer_rating || product.farmerRating || 0
+  const totalReviews = (product as any).total_reviews || product.totalReviews || 0
+  // Harvest date check (unused but keeping for reference)
+  // const harvestDate = (product as any).harvest_date || product.harvestDate
+
   return (
     <Card className={cn('overflow-hidden group', className)}>
       {/* Image */}
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
-          src={product.images[0] || '/placeholder-product.jpg'}
+          src={product.images?.[0] || '/placeholder-product.jpg'}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
@@ -52,15 +59,17 @@ export default function ProductCard({
       <CardContent className="p-4">
         {/* Farmer info */}
         <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-          <span>{product.farmerName}</span>
-          <span className="flex items-center gap-0.5">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            {product.farmerRating}
-          </span>
+          <span>{farmerName}</span>
+          {farmerRating > 0 && (
+            <span className="flex items-center gap-0.5">
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              {farmerRating.toFixed(1)}
+            </span>
+          )}
         </div>
 
         {/* Product name */}
-        <Link to={`/buyer/product/${product.id}`}>
+        <Link to={`/buyer/products/${product.id}`}>
           <h3 className="font-semibold text-lg line-clamp-1 hover:text-primary transition-colors">
             {product.name}
           </h3>
@@ -69,7 +78,7 @@ export default function ProductCard({
         {/* Location */}
         <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
           <MapPin className="h-3 w-3" />
-          {product.location}
+          {product.location || 'Location not specified'}
         </div>
 
         {/* Price and stock */}
@@ -86,9 +95,9 @@ export default function ProductCard({
           <div className="text-right">
             <div className="flex items-center gap-1">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm">{product.rating}</span>
+              <span className="text-sm">{product.rating?.toFixed(1) || '0.0'}</span>
               <span className="text-xs text-muted-foreground">
-                ({product.totalReviews})
+                ({totalReviews})
               </span>
             </div>
           </div>

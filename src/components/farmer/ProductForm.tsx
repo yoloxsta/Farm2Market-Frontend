@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react'
+import { Loader2, Upload, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select'
 import { useToast } from '@/components/ui/use-toast'
 import { useCreateProduct, useUpdateProduct } from '@/hooks'
+import { uploadApi } from '@/services/api'
 import type { Product, ProductCategory, ProductUnit } from '@/types'
 
 const productSchema = z.object({
@@ -118,14 +119,32 @@ export default function ProductForm({ product, onSuccess }: ProductFormProps) {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      // In a real app, you would upload images first and get URLs
-      // For now, we'll use the preview URLs (in production, upload to server)
+      // Upload images to server first
+      let uploadedImageUrls: string[] = []
+      
+      if (imageFiles.length > 0) {
+        // Upload each image file to the server
+        const uploadPromises = imageFiles.map(async (file) => {
+          try {
+            const response = await uploadApi.uploadImage(file)
+            return response.data.url
+          } catch (error) {
+            console.error('Failed to upload image:', error)
+            return null
+          }
+        })
+        
+        const results = await Promise.all(uploadPromises)
+        uploadedImageUrls = results.filter((url): url is string => url !== null)
+      }
       
       const productData = {
         ...data,
         category: selectedCategory,
         unit: selectedUnit,
-        images: images.length > 0 ? images : ['https://images.unsplash.com/photo-1546470427-227c7369a9b5?w=400&h=300&fit=crop'],
+        images: uploadedImageUrls.length > 0 
+          ? uploadedImageUrls 
+          : ['https://images.unsplash.com/photo-1546470427-227c7369a9b5?w=400&h=300&fit=crop'],
         certifications: [],
       }
 
@@ -282,12 +301,12 @@ export default function ProductForm({ product, onSuccess }: ProductFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price per Unit ($)</Label>
+          <Label htmlFor="price">Price per Unit (K)</Label>
           <Input
             id="price"
             type="number"
-            step="0.01"
-            placeholder="0.00"
+            step="1"
+            placeholder="0"
             {...register('price', { valueAsNumber: true })}
             disabled={isLoading}
           />

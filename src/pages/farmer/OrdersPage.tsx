@@ -24,7 +24,7 @@ import { ordersApi } from '@/services/api'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
 import { PageLoader } from '@/components/shared/LoadingSpinner'
 import EmptyState from '@/components/shared/EmptyState'
-import type { Order, OrderStatus } from '@/types'
+import type { OrderStatus } from '@/types'
 
 const statusColors: Record<OrderStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -49,7 +49,7 @@ const statusOptions: { value: OrderStatus | 'all'; label: string }[] = [
 export default function OrdersPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const queryClient = useQueryClient()
   const { toast } = useToast()
 
@@ -126,7 +126,7 @@ export default function OrdersPage() {
       {/* Orders list */}
       {orders.length > 0 ? (
         <div className="space-y-4">
-          {orders.map((order: Order) => (
+          {orders.map((order: any) => (
             <Card key={order.id} className="overflow-hidden">
               <CardContent className="p-0">
                 <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -137,15 +137,15 @@ export default function OrdersPage() {
                     <div>
                       <p className="font-semibold">{order.id}</p>
                       <p className="text-sm text-muted-foreground">
-                        {order.buyerName} • {formatDateTime(order.createdAt)}
+                        {order.buyer_name || order.buyerName} • {formatDateTime(order.created_at || order.createdAt)}
                       </p>
                       <p className="text-sm font-medium mt-1">
-                        {order.items.length} items • {formatCurrency(order.totalAmount)}
+                        {order.items?.length || 0} items • {formatCurrency(order.total_amount || order.totalAmount)}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge className={statusColors[order.status]}>
+                    <Badge className={statusColors[order.status as OrderStatus]}>
                       {order.status}
                     </Badge>
                     <Button
@@ -211,17 +211,17 @@ export default function OrdersPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge className={statusColors[selectedOrder.status]}>
+                  <Badge className={statusColors[selectedOrder.status as OrderStatus]}>
                     {selectedOrder.status}
                   </Badge>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Buyer</p>
-                  <p className="font-medium">{selectedOrder.buyerName}</p>
+                  <p className="font-medium">{(selectedOrder as any).buyer_name || selectedOrder.buyerName}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Order Date</p>
-                  <p className="font-medium">{formatDateTime(selectedOrder.createdAt)}</p>
+                  <p className="font-medium">{formatDateTime((selectedOrder as any).created_at || selectedOrder.createdAt)}</p>
                 </div>
               </div>
 
@@ -231,7 +231,7 @@ export default function OrdersPage() {
               <div>
                 <h4 className="font-semibold mb-3">Order Items</h4>
                 <div className="space-y-3">
-                  {selectedOrder.items.map((item) => (
+                  {selectedOrder.items.map((item: any) => (
                     <div
                       key={item.id}
                       className="flex items-center gap-3 rounded-lg border p-3"
@@ -259,11 +259,11 @@ export default function OrdersPage() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatCurrency(selectedOrder.totalAmount)}</span>
+                  <span>{formatCurrency((selectedOrder as any).total_amount || selectedOrder.totalAmount)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
-                  <span>{formatCurrency(selectedOrder.totalAmount)}</span>
+                  <span>{formatCurrency((selectedOrder as any).total_amount || selectedOrder.totalAmount)}</span>
                 </div>
               </div>
 
@@ -271,11 +271,12 @@ export default function OrdersPage() {
               <div>
                 <h4 className="font-semibold mb-2">Shipping Address</h4>
                 <p className="text-sm text-muted-foreground">
-                  {selectedOrder.shippingAddress.street}
+                  {(selectedOrder as any).shipping_address?.address || selectedOrder.shippingAddress?.street || 'N/A'}
                   <br />
-                  {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.state} {selectedOrder.shippingAddress.zipCode}
+                  {(selectedOrder as any).shipping_address?.city || selectedOrder.shippingAddress?.city || ''}
+                  {(selectedOrder as any).shipping_address?.postal_code || selectedOrder.shippingAddress?.zipCode ? `, ${(selectedOrder as any).shipping_address?.postal_code || selectedOrder.shippingAddress?.zipCode}` : ''}
                   <br />
-                  {selectedOrder.shippingAddress.country}
+                  {(selectedOrder as any).shipping_address?.phone || selectedOrder.shippingAddress?.country || ''}
                 </p>
               </div>
 
@@ -311,6 +312,16 @@ export default function OrdersPage() {
                       disabled={updateStatusMutation.isPending}
                     >
                       Mark as Shipped
+                    </Button>
+                  )}
+                  {selectedOrder.status === 'shipped' && (
+                    <Button
+                      onClick={() => {
+                        handleStatusUpdate(selectedOrder.id, 'delivered')
+                      }}
+                      disabled={updateStatusMutation.isPending}
+                    >
+                      Mark as Delivered
                     </Button>
                   )}
                 </div>

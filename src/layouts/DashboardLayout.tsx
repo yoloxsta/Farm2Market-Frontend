@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import {
   LayoutDashboard,
   Package,
@@ -17,6 +18,7 @@ import {
   Moon,
   Leaf,
   User,
+  ShoppingBag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -32,6 +34,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
 import { useAuth } from '@/hooks'
+import { buyerApi } from '@/services/api'
 import type { UserRole } from '@/types'
 
 interface NavItem {
@@ -52,7 +55,7 @@ const farmerNavItems: NavItem[] = [
 
 const buyerNavItems: NavItem[] = [
   { label: 'Dashboard', href: '/buyer', icon: LayoutDashboard, roles: ['buyer'] },
-  { label: 'Shop', href: '/buyer/shop', icon: ShoppingCart, roles: ['buyer'] },
+  { label: 'Shop', href: '/buyer/shop', icon: ShoppingBag, roles: ['buyer'] },
   { label: 'Orders', href: '/buyer/orders', icon: Package, roles: ['buyer'] },
   { label: 'Deliveries', href: '/buyer/deliveries', icon: Truck, roles: ['buyer'] },
 ]
@@ -63,6 +66,15 @@ export default function DashboardLayout() {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
+
+  // Get cart count for buyer
+  const { data: cartData } = useQuery({
+    queryKey: ['cart'],
+    queryFn: () => buyerApi.getCart(),
+    enabled: user?.role === 'buyer',
+  })
+
+  const cartItemCount = cartData?.data?.items?.length || 0
 
   const navItems = user?.role === 'farmer' ? farmerNavItems : buyerNavItems
 
@@ -179,6 +191,23 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-2">
+            {/* Cart button for buyers */}
+            {user?.role === 'buyer' && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="relative"
+                onClick={() => navigate('/buyer/cart')}
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartItemCount > 0 && (
+                  <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full p-0 text-xs">
+                    {cartItemCount}
+                  </Badge>
+                )}
+              </Button>
+            )}
+
             {/* Dark mode toggle */}
             <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

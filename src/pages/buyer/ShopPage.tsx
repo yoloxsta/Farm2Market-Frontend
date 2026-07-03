@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Filter, Grid, List, X } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,7 +22,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { Separator } from '@/components/ui/separator'
-import { productsApi } from '@/services/api'
+import { useToast } from '@/components/ui/use-toast'
+import { productsApi, buyerApi } from '@/services/api'
 import { ProductCard, CardSkeleton } from '@/components/shared'
 import EmptyState from '@/components/shared/EmptyState'
 import type { ProductCategory, Product } from '@/types'
@@ -54,6 +55,8 @@ export default function ShopPage() {
   const [maxPrice, setMaxPrice] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', { search, category, sortBy, minPrice, maxPrice }],
@@ -66,10 +69,29 @@ export default function ShopPage() {
     }),
   })
 
+  const addToCartMutation = useMutation({
+    mutationFn: ({ productId, quantity }: { productId: string; quantity: number }) =>
+      buyerApi.addToCart(productId, quantity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] })
+      toast({
+        title: 'Added to cart',
+        description: 'Product has been added to your cart.',
+      })
+    },
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add product to cart.',
+      })
+    },
+  })
+
   const products = data?.data || []
 
   const handleAddToCart = (product: Product) => {
-    console.log('Add to cart:', product)
+    addToCartMutation.mutate({ productId: product.id, quantity: product.moq || 1 })
   }
 
   const clearFilters = () => {

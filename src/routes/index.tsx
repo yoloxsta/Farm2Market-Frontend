@@ -17,6 +17,11 @@ import FarmerAnalytics from '@/pages/farmer/AnalyticsPage'
 // Buyer Pages
 import BuyerDashboard from '@/pages/buyer/DashboardPage'
 import BuyerShop from '@/pages/buyer/ShopPage'
+import BuyerProductDetail from '@/pages/buyer/ProductDetailPage'
+import BuyerCart from '@/pages/buyer/CartPage'
+import BuyerCheckout from '@/pages/buyer/CheckoutPage'
+import BuyerOrders from '@/pages/buyer/OrdersPage'
+import BuyerDeliveries from '@/pages/buyer/DeliveriesPage'
 
 // Error Pages
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -90,12 +95,24 @@ export const router = createBrowserRouter([
         element: <BuyerShop />,
       },
       {
+        path: 'products/:id',
+        element: <BuyerProductDetail />,
+      },
+      {
+        path: 'cart',
+        element: <BuyerCart />,
+      },
+      {
+        path: 'checkout',
+        element: <BuyerCheckout />,
+      },
+      {
         path: 'orders',
-        element: <BuyerShop />, // Placeholder - could create BuyerOrdersPage
+        element: <BuyerOrders />,
       },
       {
         path: 'deliveries',
-        element: <BuyerShop />, // Placeholder
+        element: <BuyerDeliveries />,
       },
     ],
   },

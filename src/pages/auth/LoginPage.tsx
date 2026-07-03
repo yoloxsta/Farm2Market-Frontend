@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Leaf, Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Leaf, ShoppingBag, Eye, EyeOff, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks'
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  role: z.enum(['farmer', 'buyer']),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -22,18 +23,24 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { login, isLoading } = useAuth()
+  const [searchParams] = useSearchParams()
+  const roleFromUrl = searchParams.get('role')
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
+      role: (roleFromUrl === 'farmer' || roleFromUrl === 'buyer') ? roleFromUrl : 'farmer',
     },
   })
+
+  const selectedRole = watch('role')
 
   const onSubmit = async (data: LoginFormData) => {
     const result = await login(data.email, data.password)
@@ -65,11 +72,56 @@ export default function LoginPage() {
       <div className="space-y-2 text-center">
         <h1 className="text-3xl font-bold">Welcome back</h1>
         <p className="text-muted-foreground">
-          Enter your credentials to access your account
+          Sign in to your Farm2Market account
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Role Selection */}
+        <div className="space-y-2">
+          <Label>Login as</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <label
+              htmlFor="role-farmer"
+              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                selectedRole === 'farmer'
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-muted hover:border-primary/50 hover:bg-muted/50'
+              }`}
+            >
+              <input
+                type="radio"
+                id="role-farmer"
+                value="farmer"
+                className="sr-only"
+                {...register('role')}
+              />
+              <Leaf className={`h-8 w-8 mb-2 ${selectedRole === 'farmer' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="font-semibold">Farmer</span>
+              <span className="text-xs text-muted-foreground mt-1">Sell your products</span>
+            </label>
+            <label
+              htmlFor="role-buyer"
+              className={`flex flex-col items-center justify-center rounded-lg border-2 p-4 cursor-pointer transition-all ${
+                selectedRole === 'buyer'
+                  ? 'border-primary bg-primary/10 shadow-sm'
+                  : 'border-muted hover:border-primary/50 hover:bg-muted/50'
+              }`}
+            >
+              <input
+                type="radio"
+                id="role-buyer"
+                value="buyer"
+                className="sr-only"
+                {...register('role')}
+              />
+              <ShoppingBag className={`h-8 w-8 mb-2 ${selectedRole === 'buyer' ? 'text-primary' : 'text-muted-foreground'}`} />
+              <span className="font-semibold">Buyer</span>
+              <span className="text-xs text-muted-foreground mt-1">Buy fresh products</span>
+            </label>
+          </div>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -128,7 +180,7 @@ export default function LoginPage() {
               Signing in...
             </>
           ) : (
-            'Sign in'
+            `Sign in as ${selectedRole === 'farmer' ? 'Farmer' : 'Buyer'}`
           )}
         </Button>
       </form>
@@ -138,31 +190,24 @@ export default function LoginPage() {
           <div className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or</span>
+          <span className="bg-background px-2 text-muted-foreground">New to Farm2Market?</span>
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <Button variant="outline" asChild>
           <Link to="/register?role=farmer">
-            <Leaf className="mr-2 h-4 w-4 text-primary" />
-            I'm a Farmer
+            <Leaf className="mr-2 h-4 w-4 text-green-600" />
+            Register as Farmer
           </Link>
         </Button>
         <Button variant="outline" asChild>
           <Link to="/register?role=buyer">
-            <Leaf className="mr-2 h-4 w-4 text-secondary" />
-            I'm a Buyer
+            <ShoppingBag className="mr-2 h-4 w-4 text-blue-600" />
+            Register as Buyer
           </Link>
         </Button>
       </div>
-
-      <p className="text-center text-sm text-muted-foreground">
-        Don't have an account?{' '}
-        <Link to="/register" className="text-primary hover:underline">
-          Create one
-        </Link>
-      </p>
     </div>
   )
 }

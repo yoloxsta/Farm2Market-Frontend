@@ -23,13 +23,19 @@ function SocketListener() {
   const { toast } = useToast()
 
   useEffect(() => {
-    if (!user?.id) return
+    if (!user?.id) {
+      console.log('No user, skipping socket connection')
+      return
+    }
+
+    console.log('SocketListener: Connecting for user:', user.id)
 
     // Connect socket
     socketService.connect(user.id)
 
     // Global handlers for real-time updates
     const handleNewOrder = (order: any) => {
+      console.log('SocketListener: Received new order:', order.id)
       qc.invalidateQueries({ queryKey: ['farmer-orders'] })
       toast({
         title: 'New Order!',
@@ -38,6 +44,7 @@ function SocketListener() {
     }
 
     const handleOrderStatus = (order: any) => {
+      console.log('SocketListener: Received order status:', order.id, order.status)
       qc.invalidateQueries({ queryKey: ['buyer-orders'] })
       qc.invalidateQueries({ queryKey: ['farmer-orders'] })
       qc.invalidateQueries({ queryKey: ['order'] })
@@ -51,6 +58,7 @@ function SocketListener() {
     socketService.onOrderStatus(handleOrderStatus)
 
     return () => {
+      console.log('SocketListener: Cleaning up')
       socketService.removeListener('order:new', handleNewOrder)
       socketService.removeListener('order:status', handleOrderStatus)
     }
@@ -60,13 +68,13 @@ function SocketListener() {
 }
 
 function AppContent() {
-  const { checkAuth, isLoading } = useAuth()
+  const { checkAuth, isLoading, isAuthenticated, isInitialized } = useAuth()
 
   useEffect(() => {
     checkAuth()
   }, [])
 
-  if (isLoading) {
+  if (isLoading || !isInitialized) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -76,7 +84,8 @@ function AppContent() {
 
   return (
     <>
-      <SocketListener />
+      {/* Only connect socket after auth check is complete and user is authenticated */}
+      {isAuthenticated && <SocketListener />}
       <RouterProvider router={router} />
     </>
   )

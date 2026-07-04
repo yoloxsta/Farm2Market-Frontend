@@ -9,6 +9,7 @@ interface AuthState {
   token: string | null
   isAuthenticated: boolean
   isLoading: boolean
+  isInitialized: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
   register: (data: Partial<User> & { password: string }) => Promise<{ success: boolean; message?: string }>
   logout: () => Promise<void>
@@ -18,11 +19,12 @@ interface AuthState {
 
 export const useAuth = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      isInitialized: false,
 
       login: async (email: string, password: string) => {
         set({ isLoading: true })
@@ -34,6 +36,7 @@ export const useAuth = create<AuthState>()(
               token: response.data.token,
               isAuthenticated: true,
               isLoading: false,
+              isInitialized: true,
             })
             localStorage.setItem('token', response.data.token)
             return { success: true }
@@ -70,6 +73,7 @@ export const useAuth = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
+          isInitialized: false,
         })
       },
 
@@ -80,7 +84,7 @@ export const useAuth = create<AuthState>()(
       checkAuth: async () => {
         const token = localStorage.getItem('token')
         if (!token) {
-          set({ isAuthenticated: false, user: null })
+          set({ isAuthenticated: false, user: null, isInitialized: true })
           return
         }
 
@@ -88,11 +92,17 @@ export const useAuth = create<AuthState>()(
         try {
           const response = await authApi.getCurrentUser()
           if (response.success && response.data) {
+            // Disconnect any existing socket with wrong user
+            const currentUser = get().user
+            if (currentUser && currentUser.id !== response.data.id) {
+              socketService.disconnect()
+            }
             set({
               user: response.data,
               token,
               isAuthenticated: true,
               isLoading: false,
+              isInitialized: true,
             })
           } else {
             localStorage.removeItem('token')
@@ -101,6 +111,7 @@ export const useAuth = create<AuthState>()(
               token: null,
               isAuthenticated: false,
               isLoading: false,
+              isInitialized: true,
             })
           }
         } catch (error) {
@@ -110,6 +121,7 @@ export const useAuth = create<AuthState>()(
             token: null,
             isAuthenticated: false,
             isLoading: false,
+            isInitialized: true,
           })
         }
       },

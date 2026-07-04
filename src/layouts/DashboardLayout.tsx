@@ -19,6 +19,7 @@ import {
   Leaf,
   User,
   ShoppingBag,
+  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -60,6 +61,11 @@ const buyerNavItems: NavItem[] = [
   { label: 'Deliveries', href: '/buyer/deliveries', icon: Truck, roles: ['buyer'] },
 ]
 
+const adminNavItems: NavItem[] = [
+  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin'] },
+  { label: 'Users', href: '/admin', icon: Users, roles: ['admin'] },
+]
+
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(false)
@@ -76,7 +82,11 @@ export default function DashboardLayout() {
 
   const cartItemCount = cartData?.data?.items?.length || 0
 
-  const navItems = user?.role === 'farmer' ? farmerNavItems : buyerNavItems
+  const navItems = user?.role === 'farmer' 
+    ? farmerNavItems 
+    : user?.role === 'admin' 
+    ? adminNavItems 
+    : buyerNavItems
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)

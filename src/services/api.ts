@@ -55,8 +55,33 @@ export const authApi = {
     return response.data
   },
   
-  register: async (data: Partial<User> & { password: string }): Promise<ApiResponse<User>> => {
-    const response = await api.post('/auth/register', data)
+  // Self-registration is disabled - only admin can create users
+  // register: async (data: Partial<User> & { password: string }): Promise<ApiResponse<User>> => {
+  //   const response = await api.post('/auth/register', data)
+  //   return response.data
+  // },
+  
+  // Admin only: Create a new user (farmer or buyer)
+  createUser: async (data: Partial<User> & { password: string; role: 'farmer' | 'buyer'; farmName?: string; companyName?: string }): Promise<ApiResponse<{ user: User; token: string }>> => {
+    const response = await api.post('/auth/create-user', data)
+    return response.data
+  },
+  
+  // Admin only: Get all users
+  getAllUsers: async (): Promise<ApiResponse<User[]>> => {
+    const response = await api.get('/auth/users')
+    return response.data
+  },
+  
+  // Admin only: Delete a user
+  deleteUser: async (userId: string): Promise<ApiResponse<null>> => {
+    const response = await api.delete(`/auth/users/${userId}`)
+    return response.data
+  },
+  
+  // Admin only: Update user password
+  updateUserPassword: async (userId: string, password: string): Promise<ApiResponse<null>> => {
+    const response = await api.patch(`/auth/users/${userId}/password`, { password })
     return response.data
   },
   

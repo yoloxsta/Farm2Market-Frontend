@@ -20,12 +20,14 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    // Redirect to admin-login for admin routes, regular login for others
+    const loginPath = allowedRoles?.includes('admin') ? '/admin-login' : '/login'
+    return <Navigate to={loginPath} state={{ from: location }} replace />
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     // Redirect to appropriate dashboard based on role
-    const redirectPath = user.role === 'farmer' ? '/farmer' : '/buyer'
+    const redirectPath = user.role === 'admin' ? '/admin' : user.role === 'farmer' ? '/farmer' : '/buyer'
     return <Navigate to={redirectPath} replace />
   }
 

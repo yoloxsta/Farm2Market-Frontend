@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute'
 // Auth Pages
 import LoginPage from '@/pages/auth/LoginPage'
 import RegisterPage from '@/pages/auth/RegisterPage'
+import AdminLoginPage from '@/pages/auth/AdminLoginPage'
 
 // Farmer Pages
 import FarmerDashboard from '@/pages/farmer/DashboardPage'
@@ -22,6 +23,9 @@ import BuyerCart from '@/pages/buyer/CartPage'
 import BuyerCheckout from '@/pages/buyer/CheckoutPage'
 import BuyerOrders from '@/pages/buyer/OrdersPage'
 import BuyerDeliveries from '@/pages/buyer/DeliveriesPage'
+
+// Admin Pages
+import AdminDashboard from '@/pages/admin/DashboardPage'
 
 // Error Pages
 import NotFoundPage from '@/pages/NotFoundPage'
@@ -41,6 +45,10 @@ export const router = createBrowserRouter([
       {
         path: 'register',
         element: <RegisterPage />,
+      },
+      {
+        path: 'admin-login',
+        element: <AdminLoginPage />,
       },
     ],
   },
@@ -113,6 +121,20 @@ export const router = createBrowserRouter([
       {
         path: 'deliveries',
         element: <BuyerDeliveries />,
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    element: (
+      <ProtectedRoute allowedRoles={['admin']}>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        index: true,
+        element: <AdminDashboard />,
       },
     ],
   },

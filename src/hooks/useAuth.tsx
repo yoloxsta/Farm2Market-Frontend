@@ -11,7 +11,6 @@ interface AuthState {
   isLoading: boolean
   isInitialized: boolean
   login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
-  register: (data: Partial<User> & { password: string }) => Promise<{ success: boolean; message?: string }>
   logout: () => Promise<void>
   updateUser: (user: User) => void
   checkAuth: () => Promise<void>
@@ -49,21 +48,22 @@ export const useAuth = create<AuthState>()(
         }
       },
 
-      register: async (data) => {
-        set({ isLoading: true })
-        try {
-          const response = await authApi.register(data)
-          if (response.success) {
-            set({ isLoading: false })
-            return { success: true, message: response.message }
-          }
-          set({ isLoading: false })
-          return { success: false, message: response.message }
-        } catch (error) {
-          set({ isLoading: false })
-          return { success: false, message: 'An error occurred during registration' }
-        }
-      },
+      // Self-registration is disabled - only admin can create users via createUser
+      // register: async (data) => {
+      //   set({ isLoading: true })
+      //   try {
+      //     const response = await authApi.register(data)
+      //     if (response.success) {
+      //       set({ isLoading: false })
+      //       return { success: true, message: response.message }
+      //     }
+      //     set({ isLoading: false })
+      //     return { success: false, message: response.message }
+      //   } catch (error) {
+      //     set({ isLoading: false })
+      //     return { success: false, message: 'An error occurred during registration' }
+      //   }
+      // },
 
       logout: async () => {
         await authApi.logout()

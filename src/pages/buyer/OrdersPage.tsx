@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { 
   Package, 
   Search, 
@@ -30,7 +30,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
+import { useToast } from '@/components/ui/use-toast'
 import { ordersApi } from '@/services/api'
+import { socketService } from '@/services/socket'
 import { PageLoader } from '@/components/shared/LoadingSpinner'
 import EmptyState from '@/components/shared/EmptyState'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -60,11 +62,30 @@ export default function BuyerOrdersPage() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
 
   const { data: ordersData, isLoading } = useQuery({
     queryKey: ['buyer-orders'],
     queryFn: () => ordersApi.getAll(),
   })
+
+  // Real-time order updates
+  useEffect(() => {
+    const handleOrderStatus = (order: any) => {
+      queryClient.invalidateQueries({ queryKey: ['buyer-orders'] })
+      toast({
+        title: 'Order Updated',
+        description: `Order #${order.id.slice(0, 8)} status: ${order.status}`,
+      })
+    }
+
+    socketService.onOrderStatus(handleOrderStatus)
+
+    return () => {
+      socketService.removeAllListeners()
+    }
+  }, [queryClient, toast])
 
   const orders = ordersData?.data || []
 

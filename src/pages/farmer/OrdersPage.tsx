@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Eye, Check, X, Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
@@ -21,6 +21,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { ordersApi } from '@/services/api'
+import { socketService } from '@/services/socket'
 import { formatCurrency, formatDateTime } from '@/lib/utils'
 import { PageLoader } from '@/components/shared/LoadingSpinner'
 import EmptyState from '@/components/shared/EmptyState'
@@ -60,6 +61,28 @@ export default function OrdersPage() {
       search,
     }),
   })
+
+  // Real-time order updates
+  useEffect(() => {
+    const handleNewOrder = (order: any) => {
+      queryClient.invalidateQueries({ queryKey: ['farmer-orders'] })
+      toast({
+        title: 'New Order Received!',
+        description: `Order from ${order.buyer_name} for ${formatCurrency(order.total_amount)}`,
+      })
+    }
+
+    const handleOrderStatus = (order: any) => {
+      queryClient.invalidateQueries({ queryKey: ['farmer-orders'] })
+    }
+
+    socketService.onNewOrder(handleNewOrder)
+    socketService.onOrderStatus(handleOrderStatus)
+
+    return () => {
+      socketService.removeAllListeners()
+    }
+  }, [queryClient, toast])
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: OrderStatus }) =>

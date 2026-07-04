@@ -36,8 +36,6 @@ export const useAuth = create<AuthState>()(
               isLoading: false,
             })
             localStorage.setItem('token', response.data.token)
-            // Connect socket
-            socketService.connect(response.data.user.id)
             return { success: true }
           }
           set({ isLoading: false })
@@ -67,7 +65,6 @@ export const useAuth = create<AuthState>()(
       logout: async () => {
         await authApi.logout()
         localStorage.removeItem('token')
-        // Disconnect socket
         socketService.disconnect()
         set({
           user: null,
@@ -97,8 +94,6 @@ export const useAuth = create<AuthState>()(
               isAuthenticated: true,
               isLoading: false,
             })
-            // Connect socket on auth check (for page refresh)
-            socketService.connect(response.data.id)
           } else {
             localStorage.removeItem('token')
             set({

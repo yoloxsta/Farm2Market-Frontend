@@ -144,8 +144,10 @@ export default function ProductForm({ product, onSuccess }: ProductFormProps) {
         unit: selectedUnit,
         images: uploadedImageUrls.length > 0 
           ? uploadedImageUrls 
-          : ['https://images.unsplash.com/photo-1546470427-227c7369a9b5?w=400&h=300&fit=crop'],
+          : product?.images || ['https://images.unsplash.com/photo-1546470427-227c7369a9b5?w=400&h=300&fit=crop'],
         certifications: [],
+        // Only include harvestDate if it has a value
+        ...(data.harvestDate && { harvestDate: data.harvestDate }),
       }
 
       if (product) {

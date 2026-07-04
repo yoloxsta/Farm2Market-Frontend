@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { RouterProvider } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/toaster'
+import { useToast } from '@/components/ui/use-toast'
 import { useAuth } from '@/hooks'
 import { router } from '@/routes'
+import { socketService } from '@/services/socket'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,6 +15,49 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// Global socket listener component
+function SocketListener() {
+  const { user } = useAuth()
+  const qc = useQueryClient()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    // Connect socket
+    socketService.connect(user.id)
+
+    // Global handlers for real-time updates
+    const handleNewOrder = (order: any) => {
+      qc.invalidateQueries({ queryKey: ['farmer-orders'] })
+      toast({
+        title: 'New Order!',
+        description: `Order from ${order.buyer_name}`,
+      })
+    }
+
+    const handleOrderStatus = (order: any) => {
+      qc.invalidateQueries({ queryKey: ['buyer-orders'] })
+      qc.invalidateQueries({ queryKey: ['farmer-orders'] })
+      qc.invalidateQueries({ queryKey: ['order'] })
+      toast({
+        title: 'Order Updated',
+        description: `Order #${order.id?.slice(0, 8)} is now ${order.status}`,
+      })
+    }
+
+    socketService.onNewOrder(handleNewOrder)
+    socketService.onOrderStatus(handleOrderStatus)
+
+    return () => {
+      socketService.removeListener('order:new', handleNewOrder)
+      socketService.removeListener('order:status', handleOrderStatus)
+    }
+  }, [user?.id, qc, toast])
+
+  return null
+}
 
 function AppContent() {
   const { checkAuth, isLoading } = useAuth()
@@ -29,7 +74,12 @@ function AppContent() {
     )
   }
 
-  return <RouterProvider router={router} />
+  return (
+    <>
+      <SocketListener />
+      <RouterProvider router={router} />
+    </>
+  )
 }
 
 export default function App() {

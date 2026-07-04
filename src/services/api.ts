@@ -55,13 +55,13 @@ export const authApi = {
     return response.data
   },
   
-  // Self-registration is disabled - only admin can create users
-  // register: async (data: Partial<User> & { password: string }): Promise<ApiResponse<User>> => {
-  //   const response = await api.post('/auth/register', data)
-  //   return response.data
-  // },
+  // Self-registration - user will be pending approval
+  register: async (data: Partial<User> & { password: string }): Promise<ApiResponse<{ user: User; token: string }>> => {
+    const response = await api.post('/auth/register', data)
+    return response.data
+  },
   
-  // Admin only: Create a new user (farmer or buyer)
+  // Admin only: Create a new user (farmer or buyer) - auto-approved
   createUser: async (data: Partial<User> & { password: string; role: 'farmer' | 'buyer'; farmName?: string; companyName?: string }): Promise<ApiResponse<{ user: User; token: string }>> => {
     const response = await api.post('/auth/create-user', data)
     return response.data
@@ -92,6 +92,69 @@ export const authApi = {
   
   getCurrentUser: async (): Promise<ApiResponse<User>> => {
     const response = await api.get('/auth/me')
+    return response.data
+  },
+}
+
+// ==========================================
+// ADMIN API
+// ==========================================
+export const adminApi = {
+  // User Approval
+  getPendingUsers: async (): Promise<ApiResponse<User[]>> => {
+    const response = await api.get('/admin/users/pending')
+    return response.data
+  },
+  
+  approveUser: async (userId: string): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/admin/users/${userId}/approve`)
+    return response.data
+  },
+  
+  rejectUser: async (userId: string): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/admin/users/${userId}/reject`)
+    return response.data
+  },
+  
+  // Product Approval
+  getPendingProducts: async (): Promise<ApiResponse<Product[]>> => {
+    const response = await api.get('/admin/products/pending')
+    return response.data
+  },
+  
+  approveProduct: async (productId: string): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/admin/products/${productId}/approve`)
+    return response.data
+  },
+  
+  rejectProduct: async (productId: string): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/admin/products/${productId}/reject`)
+    return response.data
+  },
+  
+  // Escrow Management
+  getEscrowPayments: async (): Promise<ApiResponse<any[]>> => {
+    const response = await api.get('/admin/escrow')
+    return response.data
+  },
+  
+  getHeldEscrowPayments: async (): Promise<ApiResponse<any[]>> => {
+    const response = await api.get('/admin/escrow/held')
+    return response.data
+  },
+  
+  getEscrowStats: async (): Promise<ApiResponse<{
+    totalHeld: number
+    totalReleased: number
+    heldCount: number
+    releasedCount: number
+  }>> => {
+    const response = await api.get('/admin/escrow/stats')
+    return response.data
+  },
+  
+  releaseEscrow: async (paymentId: string): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/admin/escrow/${paymentId}/release`)
     return response.data
   },
 }

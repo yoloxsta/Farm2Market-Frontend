@@ -196,8 +196,23 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <p className="text-center text-sm text-muted-foreground">
-        Contact your administrator to create an account. Self-registration is disabled.
+      <div className="grid grid-cols-2 gap-4">
+        <Button variant="outline" asChild>
+          <Link to="/register?role=farmer">
+            <Leaf className="mr-2 h-4 w-4 text-green-600" />
+            Register as Farmer
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link to="/register?role=buyer">
+            <ShoppingBag className="mr-2 h-4 w-4 text-blue-600" />
+            Register as Buyer
+          </Link>
+        </Button>
+      </div>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Note: New accounts require admin approval before login.
       </p>
     </div>
   )

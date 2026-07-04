@@ -69,6 +69,18 @@ class SocketService {
     this.socket.off('order:status');
     this.socket.off('order:updated');
     this.socket.off('notification');
+    this.socket.off('admin:user:registered');
+    this.socket.off('admin:user:approved');
+    this.socket.off('admin:user:rejected');
+    this.socket.off('admin:product:created');
+    this.socket.off('admin:product:approved');
+    this.socket.off('admin:product:rejected');
+    this.socket.off('admin:escrow:created');
+    this.socket.off('admin:escrow:released');
+    this.socket.off('account:approved');
+    this.socket.off('product:approved');
+    this.socket.off('product:rejected');
+    this.socket.off('escrow:released');
     
     // Set up event forwarding
     this.socket.on('order:new', (data) => {
@@ -86,6 +98,58 @@ class SocketService {
     this.socket.on('notification', (data) => {
       console.log('Received notification event:', data);
       this.forwardEvent('notification', data);
+    });
+    
+    // Admin events
+    this.socket.on('admin:user:registered', (data) => {
+      console.log('Received admin:user:registered event:', data);
+      this.forwardEvent('admin:user:registered', data);
+    });
+    this.socket.on('admin:user:approved', (data) => {
+      console.log('Received admin:user:approved event:', data);
+      this.forwardEvent('admin:user:approved', data);
+    });
+    this.socket.on('admin:user:rejected', (data) => {
+      console.log('Received admin:user:rejected event:', data);
+      this.forwardEvent('admin:user:rejected', data);
+    });
+    this.socket.on('admin:product:created', (data) => {
+      console.log('Received admin:product:created event:', data);
+      this.forwardEvent('admin:product:created', data);
+    });
+    this.socket.on('admin:product:approved', (data) => {
+      console.log('Received admin:product:approved event:', data);
+      this.forwardEvent('admin:product:approved', data);
+    });
+    this.socket.on('admin:product:rejected', (data) => {
+      console.log('Received admin:product:rejected event:', data);
+      this.forwardEvent('admin:product:rejected', data);
+    });
+    this.socket.on('admin:escrow:created', (data) => {
+      console.log('Received admin:escrow:created event:', data);
+      this.forwardEvent('admin:escrow:created', data);
+    });
+    this.socket.on('admin:escrow:released', (data) => {
+      console.log('Received admin:escrow:released event:', data);
+      this.forwardEvent('admin:escrow:released', data);
+    });
+    
+    // User events (for the user being affected)
+    this.socket.on('account:approved', (data) => {
+      console.log('Received account:approved event:', data);
+      this.forwardEvent('account:approved', data);
+    });
+    this.socket.on('product:approved', (data) => {
+      console.log('Received product:approved event:', data);
+      this.forwardEvent('product:approved', data);
+    });
+    this.socket.on('product:rejected', (data) => {
+      console.log('Received product:rejected event:', data);
+      this.forwardEvent('product:rejected', data);
+    });
+    this.socket.on('escrow:released', (data) => {
+      console.log('Received escrow:released event:', data);
+      this.forwardEvent('escrow:released', data);
     });
   }
 
@@ -124,6 +188,86 @@ class SocketService {
   // Listen for notifications
   onNotification(callback: EventCallback) {
     this.addListener('notification', callback);
+  }
+
+  // ============ ADMIN EVENT LISTENERS ============
+
+  // New user registered (pending approval)
+  onNewUserRegistration(callback: EventCallback) {
+    this.addListener('admin:user:registered', callback);
+  }
+
+  // User approved
+  onUserApproved(callback: EventCallback) {
+    this.addListener('admin:user:approved', callback);
+  }
+
+  // User rejected
+  onUserRejected(callback: EventCallback) {
+    this.addListener('admin:user:rejected', callback);
+  }
+
+  // New product created (pending approval)
+  onNewProductCreated(callback: EventCallback) {
+    this.addListener('admin:product:created', callback);
+  }
+
+  // Product approved
+  onProductApproved(callback: EventCallback) {
+    this.addListener('admin:product:approved', callback);
+  }
+
+  // Product rejected
+  onProductRejected(callback: EventCallback) {
+    this.addListener('admin:product:rejected', callback);
+  }
+
+  // New escrow payment
+  onNewEscrowPayment(callback: EventCallback) {
+    this.addListener('admin:escrow:created', callback);
+  }
+
+  // Escrow released
+  onEscrowReleased(callback: EventCallback) {
+    this.addListener('admin:escrow:released', callback);
+  }
+
+  // ============ USER EVENT LISTENERS ============
+
+  // Account approved (for the user)
+  onAccountApproved(callback: EventCallback) {
+    this.addListener('account:approved', callback);
+  }
+
+  // Product approved (for the farmer)
+  onFarmerProductApproved(callback: EventCallback) {
+    this.addListener('product:approved', callback);
+  }
+
+  // Product rejected (for the farmer)
+  onFarmerProductRejected(callback: EventCallback) {
+    this.addListener('product:rejected', callback);
+  }
+
+  // Escrow released (for the farmer)
+  onFarmerEscrowReleased(callback: EventCallback) {
+    this.addListener('escrow:released', callback);
+  }
+
+  // Join admin room
+  joinAdminRoom() {
+    if (this.socket) {
+      this.socket.emit('join', 'admins');
+      console.log('Joined admins room');
+    }
+  }
+
+  // Leave admin room
+  leaveAdminRoom() {
+    if (this.socket) {
+      this.socket.emit('leave', 'admins');
+      console.log('Left admins room');
+    }
   }
 
   // Add listener

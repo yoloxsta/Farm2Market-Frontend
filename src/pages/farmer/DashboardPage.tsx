@@ -108,7 +108,7 @@ export default function FarmerDashboardPage() {
         <CardContent>
           <div className="grid gap-3 sm:grid-cols-2">
             <Button asChild variant="outline" className="justify-start">
-              <Link to="/farmer/products/new">
+              <Link to="/farmer/products">
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Product
               </Link>

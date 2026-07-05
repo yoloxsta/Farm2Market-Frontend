@@ -8,7 +8,6 @@ import {
   Truck,
   BarChart3,
   Wallet,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -17,7 +16,6 @@ import {
   Sun,
   Moon,
   Leaf,
-  User,
   ShoppingBag,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -161,14 +159,7 @@ export default function DashboardLayout() {
           </nav>
 
           {/* Bottom section */}
-          <div className="border-t p-4 space-y-1">
-            <Link
-              to="/settings"
-              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-            >
-              <Settings className="h-5 w-5" />
-              Settings
-            </Link>
+          <div className="border-t p-4">
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground w-full"
@@ -269,7 +260,7 @@ export default function DashboardLayout() {
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={user?.avatar} alt={user?.name} />
                     <AvatarFallback>
-                      {user ? getInitials(user.name) : <User className="h-5 w-5" />}
+                      {user ? getInitials(user.name) : '?'}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -281,15 +272,6 @@ export default function DashboardLayout() {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <User className="mr-2 h-4 w-4" />
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/settings')}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive">
                   <LogOut className="mr-2 h-4 w-4" />

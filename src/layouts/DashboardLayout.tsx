@@ -19,7 +19,6 @@ import {
   Leaf,
   User,
   ShoppingBag,
-  Users,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -61,10 +60,7 @@ const buyerNavItems: NavItem[] = [
   { label: 'Deliveries', href: '/buyer/deliveries', icon: Truck, roles: ['buyer'] },
 ]
 
-const adminNavItems: NavItem[] = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard, roles: ['admin'] },
-  { label: 'Users', href: '/admin', icon: Users, roles: ['admin'] },
-]
+const adminNavItems: NavItem[] = []
 
 export default function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)

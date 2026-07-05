@@ -13,7 +13,7 @@ export default function AdminDashboardPage() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             User Approval

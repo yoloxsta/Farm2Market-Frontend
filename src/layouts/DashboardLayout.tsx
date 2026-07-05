@@ -165,7 +165,7 @@ export default function DashboardLayout() {
           </nav>
 
           {/* Bottom section */}
-          <div className="border-t p-4">
+          <div className="border-t p-4 space-y-1">
             <Link
               to="/settings"
               className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -173,6 +173,13 @@ export default function DashboardLayout() {
               <Settings className="h-5 w-5" />
               Settings
             </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground w-full"
+            >
+              <LogOut className="h-5 w-5" />
+              Log out
+            </button>
           </div>
         </div>
       </aside>

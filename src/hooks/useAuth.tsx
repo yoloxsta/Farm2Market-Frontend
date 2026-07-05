@@ -66,8 +66,9 @@ export const useAuth = create<AuthState>()(
       // },
 
       logout: async () => {
-        await authApi.logout()
+        // Clear everything immediately for fast UI response
         localStorage.removeItem('token')
+        localStorage.removeItem('auth-storage')
         socketService.disconnect()
         set({
           user: null,
@@ -75,6 +76,12 @@ export const useAuth = create<AuthState>()(
           isAuthenticated: false,
           isInitialized: false,
         })
+        // Call API in background (don't wait for it)
+        try {
+          await authApi.logout()
+        } catch (error) {
+          // Ignore errors - user is already logged out locally
+        }
       },
 
       updateUser: (user: User) => {

@@ -10,7 +10,7 @@ interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
   isInitialized: boolean
-  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>
+  login: (email: string, password: string, role?: string) => Promise<{ success: boolean; message?: string }>
   logout: () => Promise<void>
   updateUser: (user: User) => void
   checkAuth: () => Promise<void>
@@ -25,10 +25,10 @@ export const useAuth = create<AuthState>()(
       isLoading: false,
       isInitialized: false,
 
-      login: async (email: string, password: string) => {
+      login: async (email: string, password: string, role?: string) => {
         set({ isLoading: true })
         try {
-          const response = await authApi.login(email, password)
+          const response = await authApi.login(email, password, role)
           if (response.success && response.data) {
             set({
               user: response.data.user,

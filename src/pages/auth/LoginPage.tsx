@@ -43,7 +43,7 @@ export default function LoginPage() {
   const selectedRole = watch('role')
 
   const onSubmit = async (data: LoginFormData) => {
-    const result = await login(data.email, data.password)
+    const result = await login(data.email, data.password, data.role)
     
     if (result.success) {
       toast({

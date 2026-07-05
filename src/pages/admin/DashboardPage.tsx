@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Users, Package, Wallet } from 'lucide-react'
+import { Users, Package, Wallet, UserCog } from 'lucide-react'
 import UserApprovalTab from './UserApprovalTab'
+import UserManagementTab from './UserManagementTab'
 import ProductApprovalTab from './ProductApprovalTab'
 import EscrowManagementTab from './EscrowManagementTab'
 
@@ -13,10 +14,14 @@ export default function AdminDashboardPage() {
       </div>
 
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="users" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             User Approval
+          </TabsTrigger>
+          <TabsTrigger value="user-management" className="flex items-center gap-2">
+            <UserCog className="h-4 w-4" />
+            User Management
           </TabsTrigger>
           <TabsTrigger value="products" className="flex items-center gap-2">
             <Package className="h-4 w-4" />
@@ -30,6 +35,10 @@ export default function AdminDashboardPage() {
 
         <TabsContent value="users">
           <UserApprovalTab />
+        </TabsContent>
+
+        <TabsContent value="user-management">
+          <UserManagementTab />
         </TabsContent>
 
         <TabsContent value="products">

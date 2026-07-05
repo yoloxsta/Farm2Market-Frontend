@@ -87,7 +87,7 @@ export const authApi = {
   
   // Admin only: Update user info
   updateUser: async (userId: string, data: { name?: string; email?: string }): Promise<ApiResponse<User>> => {
-    const response = await api.patch(`/auth/users/${userId}`, data)
+    const response = await api.patch(`/auth/users/${userId}/info`, data)
     return response.data
   },
   
